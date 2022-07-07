@@ -4,54 +4,73 @@ import nltk
 from nltk.tokenize import word_tokenize
 
 
-ex = ["She loves pizza, pizza is delicious.",
-	"she is a good person.",
-	"good people are the best."]
+class OneHotEncoding:
+	def __init__(self):
+		self.unique_words = []
+		self.one_hot_encoding = []
 
-def one_hot_encoding(data):
-	unique_words = []
-	for sentence in data:
-		words = word_tokenize(sentence)
-		for word in words:
-			if word not in unique_words:
-				unique_words.append(word)
+	def fit(self, data):
+		for sentence in data:
+			words = word_tokenize(sentence)
+			for word in words:
+				if word not in self.unique_words:
+					self.unique_words.append(word)
 
-	ohe = []
-	for word in unique_words:
-		onehot = []
-		words = word_tokenize(sentence)
-		for word in unique_words:
-			if word in words:
-				onehot.append(1)
-			else:
-				onehot.append(0)
+		return self.unique_words
 
-		ohe.append(onehot)
+	def transform(self, data):
+		for sentence in data:
+			ohe = []
+			words = word_tokenize(sentence)
+			for word in self.unique_words:
+				if word in words:
+					ohe.append(1)
+				else:
+					ohe.append(0)
+			self.one_hot_encoding.append(ohe)
 
-	return np.array(ohe)
+		return self.one_hot_encoding
 
-def bag_of_words(data):
-	unique_words = []
-	for sentence in data:
-		words = word_tokenize(sentence)
-		for word in words:
-			if word not in unique_words:
-				unique_words.append(word)
-	values = [0 for x in range(len(unique_words))]
-	
-	bag_of_words = []
-	for sentence in data:
-		bow = dict(zip(unique_words, values))
-		words = word_tokenize(sentence)
-		for word in words:
-			if word in unique_words:
-				bow[word] += 1
-		bag_of_words.append(np.fromiter(bow.values(), dtype=int))
+	def fit_transform(self, data):
+		self.fit(data)
+		self.transform(data)
+
+		return self.one_hot_encoding
+
+
+
+class BagOfWords:
+	def __init__(self):
+		self.unique_words = []
+		self. bag_of_words = []
+		self.values = []
+
+	def fit(self, data):
+		for sentence in data:
+			words = word_tokenize(sentence)
+			for word in words:
+				if word not in self.unique_words:
+					self.unique_words.append(word)
+		self.values = [0 for x in range(len(self.unique_words))]
+
+		return self.unique_words
+
+	def transform(self, data):
+		for sentence in data:
+			bow = dict(zip(self.unique_words, self.values))
+			words = word_tokenize(sentence)
+			for word in words:
+				if word in self.unique_words:
+					bow[word] += 1
+			self.bag_of_words.append(np.fromiter(bow.values(), dtype=int))
 		
-	return np.array(bag_of_words)
+		return self.bag_of_words
 
+	def fit_transform(self, data):
+		self.fit(data)
+		self.transform(data)
 
-
+		return self.bag_of_words
 
 
 
